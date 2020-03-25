@@ -14,11 +14,11 @@ class iso _TestUnit is UnitTest
   fun apply(h: TestHelper) =>
     h.long_test(1_000)
 
-    let o: Observable[USize] tag = SimpleObservable[USize].create({(subscriber) =>
-      subscriber.onNext(1)
-      subscriber.onComplete()
-    })
-
+    let o = object is Observable[USize]
+      be subscribe(subscriber: Observer[USize] tag) =>
+        subscriber.onNext(1)
+        subscriber.onComplete()
+    end
 
     let observer: Observer[USize val] tag = object
       be onNext(x: USize) =>
