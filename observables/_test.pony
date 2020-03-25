@@ -5,10 +5,10 @@ actor Main is TestList
     PonyTest(env, this)
 
   fun tag tests(test: PonyTest) =>
-    test(_TestUnit)
+    test(_TestSimpleObservable)
 
 
-class iso _TestUnit is UnitTest
+class iso _TestSimpleObservable is UnitTest
   fun name(): String => "SimpleObservable"
 
   fun apply(h: TestHelper) =>
@@ -20,7 +20,7 @@ class iso _TestUnit is UnitTest
         subscriber.onComplete()
     end
 
-    let observer: Observer[USize val] tag = object
+    let observer = object
       be onNext(x: USize) =>
         h.assert_eq[USize](x, 1)
 
