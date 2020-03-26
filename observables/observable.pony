@@ -1,5 +1,3 @@
-use "itertools"
-
 interface Observer[A: Any #share]
   be onNext(value: A)
   be onError()
@@ -12,8 +10,31 @@ trait Observable[A: Any #share]
   """
   be subscribe(observer: Observer[A] tag)
 
-  // fun take(n: USize): Observable[A]
-  // TODO:  fun map[B: Any #share](fn: {(A): B}): Observable[B] =>
+  fun map[B: Any #share](fn: {(A): B} val): Observable[B] =>
+    let o = object is Observable[A]
+      let _subscribers: Array[Observer[B]] = _subscribers.create()
+
+      be subscribe(subscriber: Observer[B]) =>
+        _subscribers.push(subscriber)
+
+      be onNext(value: A) =>
+        for s in _subscribers do
+          s.onNext(fn(value))
+        end
+
+      be onComplete() =>
+        for s in _subscribers do
+          s.onComplete()
+        end
+
+      be onError() =>
+        for s in _subscribers do
+          s.onError()
+        end
+    end
+
+    subscribe(o)
+    o
 
 primitive Observables
   fun fromSubscribe[A: Any #share](
