@@ -1,11 +1,12 @@
-actor _MapTransform[A: Any #share, B: Any #share] is Observable[B]
-  let _subscribers: Array[Observer[B]] = _subscribers.create()
-  let _fn: {(A): B}
+actor _MapTransform[A: Any #share, B: Any #share] is (Observer[A] & Observable[B])
+
+  let _subscribers: Array[Observer[B] tag] = _subscribers.create()
+  let _fn: {(A): B} val
 
   new create(fn': {(A): B} val) =>
     _fn = fn'
 
-  be subscribe(observer: Observer[A] tag) =>
+  be subscribe(observer: Observer[B] tag) =>
      _subscribers.push(observer)
 
   be onNext(value: A) =>

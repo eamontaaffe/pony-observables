@@ -1,4 +1,4 @@
-interface Observer[A: Any #share]
+trait Observer[A: Any #share]
   be onNext(value: A)
   be onError()
   be onComplete()
@@ -10,11 +10,13 @@ trait Observable[A: Any #share]
   """
   be subscribe(observer: Observer[A] tag)
 
-  fun tag map[B: Any #share](
-    fn: {(A): B})
-    : Observable[B]
+  fun map[B: Any #share](
+    fn: {(A): B} val)
+    : Observable[B] tag
   =>
-    let obs: Observable[B] = _MapTransform[A, B](fn)
+    let obs: (Observable[B] tag & Observer[A] tag) =
+      _MapTransform[A, B].create(fn)
+
     subscribe(obs)
     obs
 
