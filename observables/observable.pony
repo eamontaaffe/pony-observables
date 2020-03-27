@@ -3,53 +3,52 @@ interface Observer[A: Any #share]
   be onError()
   be onComplete()
 
-
 trait Observable[A: Any #share]
   """
   Observables, inspired by ReactiveX.
   """
   be subscribe(observer: Observer[A] tag)
 
-  fun map[B: Any #share](fn: {(A): B} val): Observable[B] =>
-    let o = object is Observable[A]
-      let _subscribers: Array[Observer[B]] = _subscribers.create()
 
-      be subscribe(subscriber: Observer[B]) =>
-        _subscribers.push(subscriber)
+actor SimpleObservable[A: Any #share] is Observable[A]
+  let _subscribe: {(Observer[A] tag): None} val
 
-      be onNext(value: A) =>
-        for s in _subscribers do
-          s.onNext(fn(value))
-        end
+  be subscribe(subscriber: Observer[A] tag) =>
+    _subscribe(subscriber)
 
-      be onComplete() =>
-        for s in _subscribers do
-          s.onComplete()
-        end
+  new create(subscribe': {(Observer[A] tag): None} val) =>
+    _subscribe = subscribe'
 
-      be onError() =>
-        for s in _subscribers do
-          s.onError()
-        end
+  new fromArray(xs: Array[A] val) =>
+    _subscribe = {(subscriber: Observer[A] tag) =>
+      for x in xs.values() do
+        subscriber.onNext(x)
+      end
+      subscriber.onComplete()
+    }
+
+actor MapObservable[A: Any #share, B: Any #share] is Observable[A]
+  let _subscribers: Array[Observer[A] tag] = _subscribers.create()
+  let _fn: {(B): A} val
+
+  new create(o: Observable[B] tag, fn': {(B): A} val) =>
+    o.subscribe(this)
+    _fn = fn'
+
+  be subscribe(subscriber: Observer[A] tag) =>
+    _subscribers.push(subscriber)
+
+  be onNext(x: B) =>
+    for s in _subscribers.values() do
+      s.onNext(_fn(x))
     end
 
-    subscribe(o)
-    o
-
-primitive Observables
-  fun fromSubscribe[A: Any #share](
-    subscribe': {(Observer[A] tag): None} val
-  ): Observable[A] tag =>
-    object is Observable[A]
-      be subscribe(subscriber: Observer[A] tag) =>
-        subscribe'(subscriber)
+  be onComplete() =>
+    for s in _subscribers.values() do
+      s.onComplete()
     end
 
-  fun fromArray[A: Any #share](xs: Array[A] val): Observable[A] tag =>
-    object is Observable[A]
-      be subscribe(subscriber: Observer[A] tag) =>
-        for x in xs.values() do
-          subscriber.onNext(x)
-        end
-        subscriber.onComplete()
+  be onError() =>
+    for s in _subscribers.values() do
+      s.onError()
     end
