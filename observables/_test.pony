@@ -65,10 +65,13 @@ class iso _TestMapTransform is UnitTest
   fun apply(h: TestHelper) =>
     h.long_test(1_000)
 
-    let o: Observable[USize] tag = SimpleObservable[USize]
-      .fromArray([1; 2; 3; 4; 5])
+    let o: Observable[USize] tag =
+      SimpleObservable[USize]
+        .fromArray([1; 2; 3; 4; 5])
 
-    let o': Observable[USize] tag = MapObservable[USize, USize].create(o, {(x: USize): USize => x * 2})
+    let o': Observable[USize] tag =
+      MapObservable[USize, USize]
+        .create(o, {(x: USize): USize => x * 2})
 
     let observer = object
       var _total: USize = 0
