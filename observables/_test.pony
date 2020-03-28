@@ -68,7 +68,7 @@ class iso _TestMapTransform is UnitTest
     let o: Observable[USize] tag =
       SimpleObservable[USize]
         .fromArray([1; 2; 3; 4; 5])
-        .map({(x: USize): USize => x * 2})
+        .map[USize]({(x: USize): USize => x * 2})
 
     let observer = object
       var _total: USize = 0

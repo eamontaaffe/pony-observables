@@ -10,7 +10,7 @@ interface Observable[A: Any #share]
   """
   be subscribe(observer: Observer[A] tag)
 
-  fun tag map(fn: {(A): A} val): Observable[A] tag =>
-    let obs = _MapTransform[A, A].create(fn)
+  fun tag map[B: Any #share](fn: {(A): B} val): Observable[B] tag =>
+    let obs: (Observer[A] tag & Observable[B] tag) = _MapTransform[A, B].create(fn)
     subscribe(obs)
     obs
