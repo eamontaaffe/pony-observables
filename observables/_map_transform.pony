@@ -1,15 +1,15 @@
-actor _MapTransform[A: Any #share, B: Any #share] is (Observer[A] & Observable[B])
+actor _MapTransform[X: Any #share, Y: Any #share] is (Observer[X] & Observable[Y])
 
-  let _subscribers: Array[Observer[B] tag] = _subscribers.create()
-  let _fn: {(A): B} val
+  let _subscribers: Array[Observer[Y] tag] = _subscribers.create()
+  let _fn: {(X): Y} val
 
-  new create(fn': {(A): B} val) =>
-    _fn = fn'
+  new create(fn: {(X): Y} val) =>
+    _fn = fn
 
-  be subscribe(observer: Observer[B] tag) =>
+  be subscribe(observer: Observer[Y] tag) =>
      _subscribers.push(observer)
 
-  be onNext(value: A) =>
+  be onNext(value: X) =>
     for s in _subscribers.values() do
       s.onNext(_fn(value))
     end
