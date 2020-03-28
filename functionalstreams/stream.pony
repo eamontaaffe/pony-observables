@@ -1,7 +1,5 @@
 use "promises"
 
-primitive _Pending
-
 actor Stream[A: Any #share]
   """
   Asynchronous functional stream implementation.
