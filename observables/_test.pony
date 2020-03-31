@@ -9,6 +9,7 @@ actor Main is TestList
     test(_TestFromSubscribe)
     test(_TestFromArray)
     test(_TestMapTransform)
+    test(_TestReduceTransform)
 
 
 class iso _TestFromSubscribe is UnitTest
@@ -73,11 +74,35 @@ class iso _TestMapTransform is UnitTest
     let observer = object
       var _total: USize = 0
 
-     be onNext(x: USize) =>
+      be onNext(x: USize) =>
         _total = _total + x
 
       be onComplete() =>
         h.assert_eq[USize](30, _total)
+        h.complete(true)
+
+      be onError() =>
+        h.complete(false)
+    end
+
+    o.subscribe(observer)
+
+class iso _TestReduceTransform is UnitTest
+  fun name(): String => "reduce"
+
+  fun apply(h: TestHelper) =>
+    h.long_test(1_000)
+
+    let o: Observable[USize] tag =
+      SimpleObservable[USize]
+        .fromArray([1; 2; 3])
+        .reduce[USize]({(x: USize, acc: USize): USize => x + acc}, 0)
+
+    let observer = object
+      be onNext(x: USize) =>
+        h.assert_eq[USize](6, x)
+
+      be onComplete() =>
         h.complete(true)
 
       be onError() =>
