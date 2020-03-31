@@ -22,6 +22,13 @@ interface Observable[A: Any #share]
 
 
 class _Then[C: Any #share, D: Any #share]
+  """
+  Wrapper class required as a workaround for:
+  https://github.com/ponylang/ponyc/issues/1875
+
+  TODO: Find a better pattern so that I don't need to wrap every transformation
+  manually.
+  """
   let observable: Observable[D] tag
   let observer: Observer[C] tag
 
