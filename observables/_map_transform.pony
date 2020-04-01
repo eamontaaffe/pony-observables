@@ -6,7 +6,7 @@ actor _MapTransform[X: Any #share, Y: Any #share] is (Observer[X] & Observable[Y
     _fn = fn
 
   be subscribe(observer: Observer[Y] tag) =>
-     _subscribers.push(observer)
+    _subscribers.push(observer)
 
   be onNext(value: X) =>
     for s in _subscribers.values() do

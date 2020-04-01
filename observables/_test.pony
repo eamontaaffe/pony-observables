@@ -23,7 +23,7 @@ class iso _TestFromSubscribe is UnitTest
         subscriber.onComplete()
     })
 
-    let observer = object
+    let observer = object is Observer[USize]
       be onNext(x: USize) =>
         h.assert_eq[USize](x, 1)
 
@@ -44,7 +44,7 @@ class iso _TestFromArray is UnitTest
 
     let o = SimpleObservable[USize].fromArray([1; 2; 3; 4; 5])
 
-    let observer = object
+    let observer = object is Observer[USize]
       var _total: USize = 0
 
      be onNext(x: USize) =>
@@ -71,7 +71,7 @@ class iso _TestMapTransform is UnitTest
         .fromArray([1; 2; 3; 4; 5])
         .map[USize]({(x: USize): USize => x * 2})
 
-    let observer = object
+    let observer = object is Observer[USize]
       var _total: USize = 0
 
       be onNext(x: USize) =>
@@ -98,7 +98,7 @@ class iso _TestReduceTransform is UnitTest
         .fromArray([1; 2; 3])
         .reduce[USize]({(x: USize, acc: USize): USize => x + acc}, 0)
 
-    let observer = object
+    let observer = object is Observer[USize]
       be onNext(x: USize) =>
         h.assert_eq[USize](6, x)
 

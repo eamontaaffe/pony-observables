@@ -1,7 +1,10 @@
+type Subscription is {(): None}
+
 interface Observer[A: Any #share]
+  // TODO: be onSubscription(subscription: Subscription iso) => None
   be onNext(value: A)
-  be onError()
-  be onComplete()
+  be onComplete() => None
+  be onError() => None
 
 
 interface Observable[A: Any #share]
