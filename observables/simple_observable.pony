@@ -14,3 +14,9 @@ actor SimpleObservable[A: Any #share] is Observable[A]
       end
       subscriber.onComplete()
     }
+
+  new fromSingleton(x: A) =>
+    _subscribe = {(subscriber: Observer[A] tag) =>
+      subscriber.onNext(x)
+      subscriber.onComplete()
+    }

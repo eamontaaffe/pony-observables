@@ -10,6 +10,7 @@ actor Main is TestList
     test(_TestFromArray)
     test(_TestMapTransform)
     test(_TestReduceTransform)
+    test(_TestFromSingleton)
 
 
 class iso _TestFromSubscribe is UnitTest
@@ -101,6 +102,29 @@ class iso _TestReduceTransform is UnitTest
     let observer = object is Observer[USize]
       be onNext(x: USize) =>
         h.assert_eq[USize](6, x)
+
+      be onComplete() =>
+        h.complete(true)
+
+      be onError() =>
+        h.complete(false)
+    end
+
+    o.subscribe(observer)
+
+class iso _TestFromSingleton is UnitTest
+  fun name(): String => "singleton"
+
+  fun apply(h: TestHelper) =>
+    h.long_test(1_000)
+
+    let o: Observable[String] tag =
+      SimpleObservable[String]
+        .fromSingleton("Hello, world!")
+
+    let observer = object is Observer[String]
+      be onNext(x: String) =>
+        h.assert_eq[String]("Hello, world!", x)
 
       be onComplete() =>
         h.complete(true)
