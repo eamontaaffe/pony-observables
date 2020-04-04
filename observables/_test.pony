@@ -12,6 +12,7 @@ actor Main is TestList
     test(_TestReduceOperator)
     test(_TestFromSingleton)
     test(_TestTakeOperator)
+    test(_TestFlattenOperator)
 
 
 class iso _TestFromSubscribe is UnitTest
@@ -163,26 +164,29 @@ class iso _TestTakeOperator is UnitTest
 
     o.subscribe(observer)
 
-// class iso _TestFlattenOperator is UnitTest
-//   fun name(): String => "flatMap"
-//
-//   fun apply(h: TestHelper) =>
-//     let o: Observable[String] tag =
-//       SimpleObservable[Iterator[String] val]
-//         .fromSingleton(["The"; "quick"; "brown"; "fox"].values())
-//         .apply[String](FlattenOperator[String])
-//         .apply[Array[String]](TakeOperator[String](4))
-//
-//     let observer = object is Observer[Iterator[String]]
-//       be onNext(x: Iterator[String]) =>
-//         // h.assert_eq[Array[String]](["the"; "quick"; "brown"; "fox"])
-//         Debug.out(x.join(";"))
-//
-//       be onComplete() =>
-//         h.complete(true)
-//
-//       be onError() =>
-//         h.complete(false)
-//     end
-//
-//     o.subscribe(observer)
+class iso _TestFlattenOperator is UnitTest
+  fun name(): String => "flatMap"
+
+  fun apply(h: TestHelper) =>
+    let o =
+      SimpleObservable[Array[String] val]
+        .fromSingleton(["The"; "quick"; "brown"; "fox"])
+        .apply[String](FlattenOperator[String])
+        .apply[Array[String] val](TakeOperator[String](4))
+
+    let observer = object is Observer[Array[String] val]
+      be onNext(xs: Array[String] val) =>
+        h.assert_eq[String](
+          ",".join(["The"; "quick"; "brown"; "fox"].values()),
+          ",".join(xs.values())
+        )
+
+
+      be onComplete() =>
+        h.complete(true)
+
+      be onError() =>
+        h.complete(false)
+    end
+
+    o.subscribe(observer)
