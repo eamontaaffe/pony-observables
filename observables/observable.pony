@@ -1,5 +1,3 @@
-type Subscription is {(): None}
-
 interface Observer[A: Any #share]
   // TODO: be onSubscription(subscription: Subscription iso) => None
   be onNext(value: A)
@@ -13,34 +11,15 @@ interface Observable[A: Any #share]
   """
   be subscribe(observer: Observer[A] tag)
 
-  fun tag map[B: Any #share](fn: {(A): B} val): Observable[B] tag =>
-    let attach = _Then[A, B].map(fn)
-    subscribe(attach.observer)
-    attach.observable
+ fun tag apply[B: Any #share](operator: (Observer[A] tag & Observable[B] tag)): Observable[B] tag =>
+   subscribe(operator)
+   operator
 
-  fun tag reduce[B: Any #share](fn: {(A, B): B} val, init: B): Observable[B] tag =>
-    let attach = _Then[A, B].reduce(fn, init)
-    subscribe(attach.observer)
-    attach.observable
+//  fun tag map[B: Any #share](fn: {(A): B} val): Observable[B] tag =>
+//    apply[B](_MapOperator[A, B].create(fn))
 
+//  fun tag reduce[B: Any #share](fn: {(A, B): B} val, init: B): Observable[B] tag =>
+//    apply[B](_ReduceOperator[A, B].create(fn, init))
 
-class _Then[C: Any #share, D: Any #share]
-  """
-  Wrapper class required as a workaround for:
-  https://github.com/ponylang/ponyc/issues/1875
-
-  TODO: Find a better pattern so that I don't need to wrap every transformation
-  manually.
-  """
-  let observable: Observable[D] tag
-  let observer: Observer[C] tag
-
-  new map(fn: {(C): D} val) =>
-    let transform = _MapTransform[C, D].create(fn)
-    observable = transform
-    observer = transform
-
-  new reduce(fn: {(C, D): D} val, init: D) =>
-    let transform = _ReduceTransform[C, D].create(fn, init)
-    observable = transform
-    observer = transform
+//  fun tag flatMap[B: Any #share](fn: {(A): Iterator[B]} val): Observable[B] tag =>
+//    apply[B](_FlatMapOperator[A, B].flatMap(fn))

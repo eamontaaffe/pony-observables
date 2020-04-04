@@ -41,7 +41,7 @@ class iso _TestFromArray is UnitTest
   fun name(): String => "fromArray"
 
   fun apply(h: TestHelper) =>
-    h.long_test(1_000)
+    h.long_test(1_000_000)
 
     let o = SimpleObservable[USize].fromArray([1; 2; 3; 4; 5])
 
@@ -65,12 +65,12 @@ class iso _TestMapTransform is UnitTest
   fun name(): String => "map"
 
   fun apply(h: TestHelper) =>
-    h.long_test(1_000)
+    h.long_test(1_000_000)
 
     let o: Observable[USize] tag =
       SimpleObservable[USize]
         .fromArray([1; 2; 3; 4; 5])
-        .map[USize]({(x: USize): USize => x * 2})
+        .apply[USize](MapOperator[USize, USize]({(x: USize): USize => x * 2}))
 
     let observer = object is Observer[USize]
       var _total: USize = 0
@@ -92,12 +92,12 @@ class iso _TestReduceTransform is UnitTest
   fun name(): String => "reduce"
 
   fun apply(h: TestHelper) =>
-    h.long_test(1_000)
+    h.long_test(1_000_000)
 
     let o: Observable[USize] tag =
       SimpleObservable[USize]
         .fromArray([1; 2; 3])
-        .reduce[USize]({(x: USize, acc: USize): USize => x + acc}, 0)
+        .apply[USize](ReduceOperator[USize, USize]({(x: USize, acc: USize): USize => x + acc}, 0))
 
     let observer = object is Observer[USize]
       be onNext(x: USize) =>
@@ -116,7 +116,7 @@ class iso _TestFromSingleton is UnitTest
   fun name(): String => "singleton"
 
   fun apply(h: TestHelper) =>
-    h.long_test(1_000)
+    h.long_test(1_000_000)
 
     let o: Observable[String] tag =
       SimpleObservable[String]

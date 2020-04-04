@@ -1,4 +1,4 @@
-actor _ReduceTransform[X: Any #share, Y: Any #share] is (Observer[X] & Observable[Y])
+actor ReduceOperator[X: Any #share, Y: Any #share] is (Observer[X] & Observable[Y])
   let _subscribers: Array[Observer[Y] tag] = _subscribers.create()
   let _fn: {(X, Y): Y} val
   var _acc: Y

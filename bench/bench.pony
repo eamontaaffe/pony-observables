@@ -14,7 +14,6 @@ actor Main is BenchmarkList
 
 class iso _WordCount is AsyncMicroBenchmark
   let _input: String
-  let _ts: Timers = Timers
 
   new iso create(input: String) =>
     _input = input
