@@ -1,5 +1,6 @@
 use "../observables"
 use "ponybench"
+use "debug"
 
 actor Main is BenchmarkList
   new create(env: Env) =>
@@ -11,22 +12,20 @@ actor Main is BenchmarkList
     bench(_WordCount("All work and no play makes Jack a dull boy"))
 
 
-class iso _WordCount is MicroBenchmark
+class iso _WordCount is AsyncMicroBenchmark
   let _input: String
+  let _ts: Timers = Timers
 
   new iso create(input: String) =>
     _input = input
 
   fun name(): String => "_WordCount('" + _input + "')"
 
-  fun apply() =>
-    DoNotOptimise[None](_run(_input))
-    DoNotOptimise.observe()
-
-  fun _run(input: String) =>
+  fun apply(c: AsyncBenchContinue) =>
     SimpleObservable[String]
-      .fromSingleton(input)
-      // TODO: .flatMap({(sentence) => sentence.split(" ")})
-      .map[String]({(word) => word.lower()})
-      .reduce[USize]({(x: String, acc: USize): USize => acc + 1} val, 0)
-      // TODO: Better reduce which counts how many of each individual word
+      .fromSingleton(_input)
+      .subscribe(object is Observer[String]
+        be onNext(value: String) => Debug.out(value)
+        be onComplete() => c.complete()
+        be onError() => c.fail()
+      end)
