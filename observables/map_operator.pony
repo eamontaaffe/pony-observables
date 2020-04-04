@@ -1,9 +1,9 @@
 actor MapOperator[C: Any #share, D: Any #share] is (Observer[C] & Observable[D])
-  let _fn: {(C): D} val
+  let _fn: {(C): D}
   let _subscribers: Array[Observer[D] tag] = []
 
-  new create(fn: {(C): D} val) =>
-    _fn = fn
+  new create(fn: {(C): D} iso) =>
+    _fn = consume fn
 
   be onNext(value: C) =>
     for s in _subscribers.values() do

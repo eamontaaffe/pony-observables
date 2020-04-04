@@ -8,9 +8,10 @@ actor Main is TestList
   fun tag tests(test: PonyTest) =>
     test(_TestFromSubscribe)
     test(_TestFromArray)
-    test(_TestMapTransform)
-    test(_TestReduceTransform)
+    test(_TestMapOperator)
+    test(_TestReduceOperator)
     test(_TestFromSingleton)
+    test(_TestTakeOperator)
 
 
 class iso _TestFromSubscribe is UnitTest
@@ -61,7 +62,7 @@ class iso _TestFromArray is UnitTest
 
     o.subscribe(observer)
 
-class iso _TestMapTransform is UnitTest
+class iso _TestMapOperator is UnitTest
   fun name(): String => "map"
 
   fun apply(h: TestHelper) =>
@@ -70,7 +71,7 @@ class iso _TestMapTransform is UnitTest
     let o: Observable[USize] tag =
       SimpleObservable[USize]
         .fromArray([1; 2; 3; 4; 5])
-        .apply[USize](MapOperator[USize, USize]({(x: USize): USize => x * 2}))
+        .apply[USize](MapOperator[USize, USize]({(x) => x * 2}))
 
     let observer = object is Observer[USize]
       var _total: USize = 0
@@ -88,7 +89,7 @@ class iso _TestMapTransform is UnitTest
 
     o.subscribe(observer)
 
-class iso _TestReduceTransform is UnitTest
+class iso _TestReduceOperator is UnitTest
   fun name(): String => "reduce"
 
   fun apply(h: TestHelper) =>
@@ -97,7 +98,7 @@ class iso _TestReduceTransform is UnitTest
     let o: Observable[USize] tag =
       SimpleObservable[USize]
         .fromArray([1; 2; 3])
-        .apply[USize](ReduceOperator[USize, USize]({(x: USize, acc: USize): USize => x + acc}, 0))
+        .apply[USize](ReduceOperator[USize, USize]({(x, acc) => x + acc}, 0))
 
     let observer = object is Observer[USize]
       be onNext(x: USize) =>
@@ -134,3 +135,54 @@ class iso _TestFromSingleton is UnitTest
     end
 
     o.subscribe(observer)
+
+class iso _TestTakeOperator is UnitTest
+  fun name(): String => "take"
+
+  fun apply(h: TestHelper) =>
+    h.long_test(1_000_000)
+
+    let o =
+      SimpleObservable[String]
+        .fromArray(["The"; "quick"; "brown"; "fox"])
+        .apply[Array[String] val](TakeOperator[String](4))
+
+    let observer = object is Observer[Array[String] val]
+      be onNext(xs: Array[String] val) =>
+        h.assert_eq[String](
+          ",".join(["The"; "quick"; "brown"; "fox"].values()),
+          ",".join(xs.values())
+        )
+
+      be onComplete() =>
+        h.complete(true)
+
+      be onError() =>
+        h.complete(false)
+    end
+
+    o.subscribe(observer)
+
+// class iso _TestFlattenOperator is UnitTest
+//   fun name(): String => "flatMap"
+//
+//   fun apply(h: TestHelper) =>
+//     let o: Observable[String] tag =
+//       SimpleObservable[Iterator[String] val]
+//         .fromSingleton(["The"; "quick"; "brown"; "fox"].values())
+//         .apply[String](FlattenOperator[String])
+//         .apply[Array[String]](TakeOperator[String](4))
+//
+//     let observer = object is Observer[Iterator[String]]
+//       be onNext(x: Iterator[String]) =>
+//         // h.assert_eq[Array[String]](["the"; "quick"; "brown"; "fox"])
+//         Debug.out(x.join(";"))
+//
+//       be onComplete() =>
+//         h.complete(true)
+//
+//       be onError() =>
+//         h.complete(false)
+//     end
+//
+//     o.subscribe(observer)
