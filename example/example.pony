@@ -1,15 +1,17 @@
 use "../observables"
+use "collections"
 
 actor Main
   new create(env: Env) =>
     SimpleObservable[String]
       .fromSingleton("An elephant is an animal")
-      // TODO: .apply[String](FlatMapOperator[String, String]({(scentence: String): String => scentence.split(" ").values())
-      .apply[String](MapOperator[String, String]({(word: String): String => word.lower()}))
-      // TODO: .apply[String](ReduceOperator[String, String](...))
+      .apply[Array[String] val](MapOperator[String, Array[String] val]({(scentence) => scentence.split(" ")}))
+      .apply[String](FlattenOperator[String])
+      .apply[String](MapOperator[String, String]({(word) => word.lower()}))
+      .apply[Map[String, USize] val](ReduceOperator[String, Map[String, USize] val]({(x, acc) => Map[String, USize].create()}))
       .subscribe(
-        object is Observer[String]
+        object is Observer[Map[String, USize]]
           be onNext(value: String) =>
-            env.out.print(value)
+            env.out.print(value.string())
         end
       )

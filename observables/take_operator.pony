@@ -1,4 +1,10 @@
 actor TakeOperator[C: Any #share] is (Observer[C] & Observable[Array[C] val])
+  """
+  TODO: This isn't really a "take" operator, it's more like a chunk operator. 
+  A take operator should return the first x elements then call onComplete. 
+  Whereas a chunk operator will return each x elements as an array like I have
+  done here.
+  """
   let _size: USize
   var _values: Array[C] iso = []
   let _subscribers: Array[Observer[Array[C] val] tag] = []
