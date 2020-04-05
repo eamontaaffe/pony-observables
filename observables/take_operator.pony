@@ -15,6 +15,7 @@ actor TakeOperator[C: Any #share] is (Observer[C] & Observable[C])
 
     _count = _count + 1
 
+    // TODO: onComplete may be called multiple times or after onError
     if _count >= _max then
       onComplete()
     end
