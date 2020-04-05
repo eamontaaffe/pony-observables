@@ -1,6 +1,7 @@
 use "../observables"
 use "ponybench"
 use "debug"
+use "collections/persistent"
 
 actor Main is BenchmarkList
   new create(env: Env) =>
@@ -22,9 +23,27 @@ class iso _WordCount is AsyncMicroBenchmark
 
   fun apply(c: AsyncBenchContinue) =>
     SimpleObservable[String]
-      .fromSingleton(_input)
-      .subscribe(object is Observer[String]
-        be onNext(value: String) => Debug.out(value)
-        be onComplete() => c.complete()
-        be onError() => c.fail()
-      end)
+      .fromSingleton("An elephant is an animal")
+      .apply[Array[String] val](
+        MapOperator[String, Array[String] val](
+          {(scentence) => scentence.split(" ")}
+        )
+      )
+      .apply[String](FlattenOperator[String])
+      .apply[String](MapOperator[String, String]({(word) => word.lower()}))
+      .apply[Map[String, USize] val](
+        ReduceOperator[String, Map[String, USize]](
+          {(x, acc) => acc.update(x, acc.get_or_else(x, 0) + 1)},
+          Map[String, USize].create()
+        )
+      )
+      .subscribe(
+        object is Observer[Map[String, USize]]
+          be onNext(value: Map[String, USize]) =>
+            for (k, v) in value.pairs() do
+              Debug.out("('" + k + "', '" + v.string() + "')")
+            end
+          be onComplete() => c.complete()
+          be onError() => c.fail()
+        end
+      )
