@@ -24,7 +24,6 @@ $(bench_binary): $(BENCH_SOURCE_FILES) $(SOURCE_FILES)
 	ponyc -o $(BUILD_DIR) -b bench $(BENCH_DIR)
 
 example: $(example_binary)
-	./$(example_binary)
 
 $(example_binary): $(SOURCE_FILES) $(EXAMPLE_SOURCE_FILES)
 	ponyc -d -o $(BUILD_DIR) -b example $(EXAMPLE_DIR)
