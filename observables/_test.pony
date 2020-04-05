@@ -146,14 +146,14 @@ class iso _TestTakeOperator is UnitTest
     let o =
       SimpleObservable[String]
         .fromArray(["The"; "quick"; "brown"; "fox"])
-        .apply[Array[String] val](TakeOperator[String](4))
-
-    let observer = object is Observer[Array[String] val]
-      be onNext(xs: Array[String] val) =>
-        h.assert_eq[String](
-          ",".join(["The"; "quick"; "brown"; "fox"].values()),
-          ",".join(xs.values())
+        .apply[String](TakeOperator[String](3))
+        .apply[String](
+          ReduceOperator[String, String]({(x, acc) => acc + x}, "")
         )
+
+    let observer = object is Observer[String]
+      be onNext(x: String) =>
+        h.assert_eq[String]("Thequickbrown", x)
 
       be onComplete() =>
         h.complete(true)
@@ -165,28 +165,31 @@ class iso _TestTakeOperator is UnitTest
     o.subscribe(observer)
 
 class iso _TestFlattenOperator is UnitTest
-  fun name(): String => "flatMap"
+  fun name(): String => "flatten"
 
   fun apply(h: TestHelper) =>
+    h.long_test(1_000_000)
+
     let o =
       SimpleObservable[Array[String] val]
         .fromSingleton(["The"; "quick"; "brown"; "fox"])
         .apply[String](FlattenOperator[String])
-        .apply[Array[String] val](TakeOperator[String](4))
-
-    let observer = object is Observer[Array[String] val]
-      be onNext(xs: Array[String] val) =>
-        h.assert_eq[String](
-          ",".join(["The"; "quick"; "brown"; "fox"].values()),
-          ",".join(xs.values())
+        .apply[String](
+          ReduceOperator[String, String]({(x, acc) => acc + x}, "")
         )
 
+    let observer = object is Observer[String]
+      be onNext(x: String) =>
+        Debug.out(x)
+        h.assert_eq[String]("Thequickbrownfox", x)
 
       be onComplete() =>
+        Debug.out("onComplete")
         h.complete(true)
 
       be onError() =>
         h.complete(false)
     end
+
 
     o.subscribe(observer)

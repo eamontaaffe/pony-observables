@@ -1,10 +1,3 @@
-interface Observer[A: Any #share]
-  // TODO: be onSubscription(subscription: Subscription iso) => None
-  be onNext(value: A)
-  be onComplete() => None
-  be onError() => None
-
-
 interface Observable[A: Any #share]
   """
   Observables, inspired by ReactiveX.
